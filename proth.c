@@ -12,12 +12,12 @@
 //#define N_CONST 44200000
 
 /* recent find (k=46157, n=698207)*/
-#define K_CONST 46157
-#define N_CONST 698203
+//#define K_CONST 46157
+//#define N_CONST 698203
 
 /* searching for k=301, n=7360 */
-//#define K_CONST 301
-//#define N_CONST 6500
+#define K_CONST 301
+#define N_CONST 6500
 
 #define NUM_CORES 6
 
@@ -119,7 +119,7 @@ static void * proth_thread(void *arg)
     {
         //get the thread-safe n
         n = get_n();
-        printf("(n=%llu)\n", n);
+        printf("(n=%lu)\n", n);
 
         //calc exp=2^n
         mpz_pow_ui(two_n, two, n);
@@ -132,6 +132,7 @@ static void * proth_thread(void *arg)
         //mpz_sub_ui(t_exp, p, 1);
         mpz_divexact_ui(t_exp, p_minus1, 2);
 
+#if 0
         //printf("prime check a=2\n");
         mpz_powm(t, t_p1, t_exp, proth);
         mpz_add_ui(t, t, 1);
@@ -141,6 +142,7 @@ static void * proth_thread(void *arg)
             printf("prime with a=2!\n");
             break;
         }
+#endif
 
         //printf("prime check a=3\n");
         mpz_powm(t, t_p2, t_exp, proth);
@@ -180,4 +182,6 @@ static void * proth_thread(void *arg)
     mpz_clear(t);
 
     pthread_mutex_unlock(&found_lock);
+
+    return NULL;
 }
