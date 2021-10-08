@@ -7,9 +7,10 @@
 
 #include <gmp.h>
 
-/* the real test */
+/* the real test (max complete n=36576908*/
 //#define K_CONST 21181
 //#define N_CONST 44200000
+//#define N_CONST 36576908
 
 /* recent find (k=46157, n=698207)*/
 //#define K_CONST 46157
@@ -76,44 +77,41 @@ unsigned long get_n()
 
 static void * proth_thread(void *arg) 
 {
-    // variables to test the primality
-    mpz_t t;
-    mpz_t t_exp;
-    mpz_t t_p1;
-    mpz_t t_p2;
-    mpz_t t_p3;
+    //proth number is p=k*2^n+1
+    unsigned long int n;
 
-    mpz_init(t);
-    mpz_init(t_exp);
-    mpz_init(t_p1);
-    mpz_init(t_p2);
-    mpz_init(t_p3);
-
-    // variables to calculate the proth number p=k*2^n+1
-    mpz_t proth;    //the proth number
-    mpz_t p_minus1; // proth number minus 1
+    // variables to calculate the proth number: p=k*2^n+1
+    mpz_t proth;    // the proth number
+    mpz_t p_minus1; // the proth number minus 1
     mpz_t k;        // k
     mpz_t two;      // 2
-    mpz_t two_n;     //2^n
+    mpz_t two_n;    // 2^n
 
+    // variables to test the primality: t = a^((p-1)/2) % p
+    mpz_t t;
+    mpz_t a1;
+    mpz_t a2;
+    mpz_t a_exp;
+
+    //initialize the variables
     mpz_init(proth);
     mpz_init(p_minus1);
     mpz_init(k);
     mpz_init(two);
     mpz_init(two_n);
+    mpz_init(t);
+    mpz_init(a1);
+    mpz_init(a2);
+    mpz_init(a_exp);
 
-    //first 3 primes
-    mpz_set_ui(t_p1, 2);
-    mpz_set_ui(t_p2, 3);
-    mpz_set_ui(t_p3, 5);
+    mpz_set_ui(a1, 3);
+    mpz_set_ui(a2, 5);
 
     //proth number is p=k*2^n+1
+    //set the k constant
     mpz_set_ui(k, K_CONST);
-
-    //two=2
+    //set two=2 
     mpz_set_ui(two, 2);
-
-    unsigned long int n;
 
     while (1)
     {
@@ -121,6 +119,7 @@ static void * proth_thread(void *arg)
         n = get_n();
         printf("(n=%lu)\n", n);
 
+        //Step 1: Caluclate the Proth Number
         //calc exp=2^n
         mpz_pow_ui(two_n, two, n);
         //calc p=k*2^n
@@ -128,26 +127,13 @@ static void * proth_thread(void *arg)
         //calc p=k*2^n+1 (this is our proth number)
         mpz_add_ui(proth, p_minus1, 1);
 
+        //Step 2: Check if the Proth Number is Prime
         //the prime check exponent is (p-1)/2
-        //mpz_sub_ui(t_exp, p, 1);
-        mpz_divexact_ui(t_exp, p_minus1, 2);
-
-#if 0
-        //printf("prime check a=2\n");
-        mpz_powm(t, t_p1, t_exp, proth);
-        mpz_add_ui(t, t, 1);
-        //printf("cmp1\n");
-        if(mpz_cmp(t, proth) == 0)
-        {
-            printf("prime with a=2!\n");
-            break;
-        }
-#endif
+        mpz_divexact_ui(a_exp, p_minus1, 2);
 
         //printf("prime check a=3\n");
-        mpz_powm(t, t_p2, t_exp, proth);
+        mpz_powm(t, a1, a_exp, proth);
         mpz_add_ui(t, t, 1);
-        //printf("cmp2\n");
         if(mpz_cmp(t, proth) == 0)
         {
             printf("prime with a=3!\n");
@@ -155,9 +141,8 @@ static void * proth_thread(void *arg)
         }
 
         //printf("prime check a=5\n");
-        mpz_powm(t, t_p3, t_exp, proth);
+        mpz_powm(t, a2, a_exp, proth);
         mpz_add_ui(t, t, 1);
-        //printf("cmp3\n");
         if(mpz_cmp(t, proth) == 0)
         {
             printf("prime with a=5!\n");
@@ -174,12 +159,14 @@ static void * proth_thread(void *arg)
     mpz_clear(k);
     mpz_clear(two);
     mpz_clear(two_n);
-
-    mpz_clear(t_exp);
-    mpz_clear(t_p1);
-    mpz_clear(t_p2);
-    mpz_clear(t_p3);
     mpz_clear(t);
+    mpz_clear(a1);
+    mpz_clear(a2);
+    mpz_clear(a_exp);
+
+    FILE *fp = fopen("proth_file", "w");
+    fprintf(fp, "%lu\n", n);
+    fclose(fp);
 
     pthread_mutex_unlock(&found_lock);
 
