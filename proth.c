@@ -7,18 +7,73 @@
 
 #include <gmp.h>
 
-/* the real test (max complete n=36576908*/
+/*
+Proth Primes are primes in the form of k*2^n+1.
+A Sierpiński number is a number k where it is impossible to construct a Proth Prime.
+The smallest proven Sierpiński number is 78557. 
+
+In the early 2000s, only 17 numbers smaller than 78557 hadn't been proven to NOT be Sierpiński numbers.
+Currently, only 5 remain. 
+If primes can be found for these 5 k's, 78557 will be proven to be the smallest Sierpiński number.
+
+The status of the 17 are as follows:
+
+4847 -  prime with n=3321063, discovered October 15, 2005
+5359 -  prime with n=5054502, discovered December 6, 2003
+10223 - prime with n=31172165, discovered October 31, 2016 (latest discovery)
+19249 - prime with n=13018586, discoverd March 26, 2007
+21181 - unsolved
+22699 - unsolved
+24737 - unsolved
+27653 - prime with n=9167433, discovered June 8, 2005
+28433 - prime with n=7830457, discovered December 30, 2004
+33661 - prime with n=7031232, discovered October 17, 2007
+44131 - prime with n=995972, discovered December 5, 2002
+46157 - prime with n=698207, discovered November 27, 2002
+54767 - prime with n=1337287, discovered December 23, 2002
+55459 - unsolved
+65567 - prime with n=1013803, discovered December 2, 2002
+67607 - unsolved
+69109 - prime with n=1157446, discovered December 6, 2002
+
+See: 
+https://www.youtube.com/watch?v=fcVjitaM3LY (Numberphile)
+http://www.prothsearch.com/sierp.html (The Sierpiński Problem: Definition and Status)
+https://www.primegrid.com/forum_thread.php?id=1647 (Seventeen or Bust)
+*/
+
+/*
+k and n are defined with K_CONST and N_CONST, respectively.
+The program will keep k constant while incremening n until a prime is found.
+*/
+
+/* 
+Test case 1 (k=46157, n=698207)
+This test will start at n=698203 and eventually find a prime with n=698207.
+Takes ~6450 seconds on my machine
+*/
+#define K_CONST 46157
+#define N_CONST 698203
+
+/* 
+Test case 2 (k=301, n=7360)
+This test will start at n=6500 and eventually find a prime with n=7360.
+Takes ~29 seconds on my machine
+*/
+/* searching for  */
+//#define K_CONST 301
+//#define N_CONST 6500
+
+/* 
+The real search (k=21181)
+I have tried multiple values of n and obviously have not found any primes.
+21181 remains the lowest k for which no primes have been found.
+*/
 //#define K_CONST 21181
 //#define N_CONST 44200000
 //#define N_CONST 36576908
 
-/* recent find (k=46157, n=698207)*/
-//#define K_CONST 46157
-//#define N_CONST 698203
 
-/* searching for k=301, n=7360 */
-#define K_CONST 301
-#define N_CONST 6500
 
 #define NUM_CORES 6
 
@@ -148,6 +203,8 @@ static void * proth_thread(void *arg)
             printf("prime with a=5!\n");
             break;
         }
+
+        gmp_printf("%Zd*2^%llu+1 is NOT prime!\n", k, n);
     }
     
     //proth number is k*2^n+1
