@@ -1,7 +1,7 @@
 CC = gcc
 COMPILER_FLAGS = -Wall
 
-CSRC = *.c
+CSRC = proth.c
 
 ifeq ($(debug),1)
    COMPILER_FLAGS += -g
